@@ -15,8 +15,8 @@ Boundaries are compared after trimming whitespace and trailing
 punctuation from both sides: the gold has "Bandon." and "45.1.2.3:443."
 
 Usage: score.py [corpus] [subset]
-  corpus  scec (default) | cecilia | anonlfi_cases | tab | cyner
-  subset  test (default) | train | all   (anonlfi_cases: case1 | case2 | all)
+  corpus  scec (default) | cecilia | cyner
+  subset  test (default) | train | all
 
 On S-CECILIA test, detect F1 also gets a 95% interval from 2,000 bootstrap
 resamples of the held-out seeds (whole seeds, since reports within a seed
@@ -190,24 +190,22 @@ def bootstrap(per_doc, groups, n=2000):
     return [f1s[int(0.025 * n)], f1s[int(0.975 * n)]]
 
 
-def main(corpus="scec", subset="test"):
-    os.environ["EVAL_DATASET"] = corpus
-    import corpora
-    docs = {d["id"]: d for d in corpora.load()}
-    if corpus == "anonlfi_cases":
-        ids = [i for i in docs if subset == "all" or i.startswith(subset)]
-    elif corpus in ("tab", "cyner"):
+def main(cname="scec", subset="test"):
+    os.environ["EVAL_DATASET"] = cname
+    import corpus
+    docs = {d["id"]: d for d in corpus.load()}
+    if cname == "cyner":
         ids = list(docs)
     else:
-        split = corpora.split()
+        split = corpus.split()
         ids = split[subset] if subset in split else list(docs)
-    groups = corpora.split()["gold_seed"] if corpus == "scec" and subset == "test" else None
-    valid = lambda r: subset in r.get("valid_subsets", [subset]) or corpus != "scec"
-    res = [score(p, ids, docs, corpora.gold_taxonomy(), groups) for p in sorted(corpora.preds_dir().glob("*.jsonl"))]
+    groups = corpus.split()["gold_seed"] if cname == "scec" and subset == "test" else None
+    valid = lambda r: subset in r.get("valid_subsets", [subset]) or cname != "scec"
+    res = [score(p, ids, docs, corpus.gold_taxonomy(), groups) for p in sorted(corpus.preds_dir().glob("*.jsonl"))]
     res = [r for r in res if valid(r)]
     res.sort(key=lambda r: -r["detect"]["f1"])
-    json.dump(res, open(ROOT / f"results_{corpus}_{subset}.json", "w"), indent=1)
-    print(f"{corpus} / {subset}: {len(ids)} docs, {res[0]['n_gold'] if res else 0} gold spans")
+    json.dump(res, open(ROOT / f"results_{cname}_{subset}.json", "w"), indent=1)
+    print(f"{cname} / {subset}: {len(ids)} docs, {res[0]['n_gold'] if res else 0} gold spans")
     print(f"{'system':44}{'exactF1':>8}{'det P':>7}{'det R':>7}{'det F1':>7}{'  95% CI':>14}{'leak':>7}{'CoNLL F1':>9}{'strict F1':>10}{'exact P':>9}{'exact R':>8}")
     # exact P / R appended at the end of the line: earlier logs read the columns
     # before them by position.

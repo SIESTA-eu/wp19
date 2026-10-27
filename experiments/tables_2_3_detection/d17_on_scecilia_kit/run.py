@@ -29,7 +29,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 DATA, RESULTS = HERE / "data", HERE / "results"
 MAXLEN, STRIDE = 512, 128
-CORPORA = ("scec", "cecilia", "tab", "cyner", "casie", "cyberpii")
+CORPORA = ("scec", "cecilia", "cyner")
 
 
 def jl(p):

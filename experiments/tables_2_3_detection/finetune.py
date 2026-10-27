@@ -29,7 +29,7 @@ import torch
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT)); import paths  # noqa: E402,F401  (puts every code folder on sys.path)
 os.environ["EVAL_DATASET"] = "cecilia"
-import corpora, cecilia, gold  # noqa: E402
+import corpus, cecilia, s_cecilia  # noqa: E402
 
 CECILIA_TO_CONLL = {  # WP17 ner-finetune.py, verbatim
     "Person": "PER", "Norp": "MISC", "Facilities": "LOC", "GPE_Location": "LOC", "Location": "LOC",
@@ -76,7 +76,7 @@ def run(model_name):
     lr, bs, accum = (2e-5, 2, 8) if large else (5e-5, 16, 1)
     out_dir = ROOT / "cache" / ("ft_" + model_name.replace("/", "__"))
 
-    docs = {d["id"]: d for d in corpora.load()}; sp = corpora.split()
+    docs = {d["id"]: d for d in corpus.load()}; sp = corpus.split()
     tok = AutoTokenizer.from_pretrained(model_name, add_prefix_space=True) if "roberta" in model_name.lower() \
         else AutoTokenizer.from_pretrained(model_name)
     label2id = {l: i for i, l in enumerate(LABELS)}
@@ -127,9 +127,9 @@ def run(model_name):
                     stride=STRIDE, device=0)
     meta = {"name": f"{model_name} fine-tuned on CECILIA", "taxonomy": "native", "family": "Tier B: fine-tuned on CECILIA",
             "train_seconds": round(train_secs, 1), "val_loss": log, "lr": lr}
-    for corpus, dset in [("scec", gold.load()), ("cecilia", [docs[i] for i in docs])]:
-        os.environ["EVAL_DATASET"] = corpus
-        with open(corpora.preds_dir() / f"ft-cecilia__{model_name.replace('/', '__')}.jsonl", "w", encoding="utf-8") as f:
+    for cname, dset in [("scec", s_cecilia.load()), ("cecilia", [docs[i] for i in docs])]:
+        os.environ["EVAL_DATASET"] = cname
+        with open(corpus.preds_dir() / f"ft-cecilia__{model_name.replace('/', '__')}.jsonl", "w", encoding="utf-8") as f:
             f.write(json.dumps({"_meta": meta}) + "\n")
             for d in dset:
                 ents = pipe(d["text"])

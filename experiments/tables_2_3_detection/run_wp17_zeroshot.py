@@ -9,7 +9,7 @@ from pathlib import Path
 import torch
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT)); import paths  # noqa: E402,F401  (puts every code folder on sys.path)
-import corpora
+import corpus
 
 HF = ["dslim/bert-base-NER", "dslim/bert-large-NER",
       "dbmdz/bert-base-cased-finetuned-conll03-english", "dbmdz/bert-large-cased-finetuned-conll03-english",
@@ -20,7 +20,7 @@ SPACY = ["en_core_web_sm", "en_core_web_md", "en_core_web_lg", "en_core_web_trf"
 
 
 def write(name, rows, extra):
-    out = corpora.preds_dir() / (name.replace("/", "__") + ".jsonl")
+    out = corpus.preds_dir() / (name.replace("/", "__") + ".jsonl")
     with open(out, "w", encoding="utf-8") as f:
         f.write(json.dumps({"_meta": {"name": name, "taxonomy": "native", "family": "WP17 zero-shot", **extra}}) + "\n")
         for gid, spans in rows: f.write(json.dumps({"id": gid, "spans": spans}) + "\n")
@@ -61,12 +61,12 @@ def run_spacy(model, docs):
 
 
 if __name__ == "__main__":
-    docs = corpora.load()
+    docs = corpus.load()
     only = sys.argv[1:]
     for m in HF + SPACY:
         if only and m not in only: continue
         name = "spacy/" + m if m in SPACY else m
-        if (corpora.preds_dir() / (name.replace("/", "__") + ".jsonl")).exists(): continue
+        if (corpus.preds_dir() / (name.replace("/", "__") + ".jsonl")).exists(): continue
         rows, secs = (run_spacy if m in SPACY else run_hf)(m, docs)
         write(name, rows, {"seconds": round(secs, 1), "device": "cuda"})
         print(f"{m}: {secs:.0f}s", flush=True)

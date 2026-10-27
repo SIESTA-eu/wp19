@@ -8,7 +8,7 @@ original Label Studio exports on 839 of the 854 incidents both contain, and
 has 25 annotated incidents the exports lack.
 
 Rows are kept exactly as WP17's prepare_data() keeps them (INFO parses to a
-non-empty list), in file order, so corpora.split() -- WP17's own
+non-empty list), in file order, so splits.cecilia_split() -- WP17's own
 train_test_split calls -- reproduces D17.1's test set.
 
 In 74 rows, 275 spans were annotated on mojibake text ("VallÃ¨s") while TEXT
@@ -20,9 +20,7 @@ import json
 from pathlib import Path
 import pandas as pd
 
-import sys
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT)); import paths  # noqa: E402,F401  (puts every code folder on sys.path)
 
 
 def fix(t):

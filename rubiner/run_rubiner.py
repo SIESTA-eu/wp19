@@ -25,7 +25,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT)); import paths  # noqa: E402,F401  (puts every code folder on sys.path)
 import run_siesta  # noqa: E402  (puts SIESTA_REPO on the path and changes directory to it)
-import corpora, custom_entities, diccionarios  # noqa: E402
+import corpus, custom_entities, diccionarios  # noqa: E402
 from base_anonymizer import windowed_ner_pipeline  # noqa: E402
 
 RESULTS = ROOT / "rubiner" / "train_general_ner" / "results"
@@ -71,12 +71,12 @@ def main(variant):
             pipe.model.to("cuda"); pipe.device = torch.device("cuda")
     base_detect, ft_detect = a.detect_ner, ft_detector(ft)
     a.detect_ner = lambda text: base_detect(text) + ft_detect(text)
-    out = corpora.preds_dir() / f"{variant}.jsonl"
+    out = corpus.preds_dir() / f"{variant}.jsonl"
     t0 = time.time()
     with open(out, "w", encoding="utf-8") as f:
         f.write(json.dumps({"_meta": {"name": f"SIESTA + corrections, general NER fine-tuned on S-CECILIA ({labels}, {'replacing' if mode == 'rep' else 'added'})",
                                       "taxonomy": "native", "family": "SIESTA", "checkpoint": str(ckpt.relative_to(ROOT)) if ckpt.is_relative_to(ROOT) else f"{RUBINER_MODEL}@{RUBINER_REVISION}"}}) + "\n")
-        for d in corpora.load():
+        for d in corpus.load():
             _, ents, _ = a.anonymize(d["text"], 0)
             f.write(json.dumps({"id": d["id"], "spans": [[e["start"], e["end"], e["entity_group"]] for e in ents]}) + "\n")
     print(variant, "done", f"{time.time() - t0:.0f}s", flush=True)

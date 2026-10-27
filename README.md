@@ -20,7 +20,13 @@ rubiner/                     RubiNER itself
   train_general_ner/         fine-tuning of dslim/bert-base-NER on S-CECILIA (Appendix 1)
   train_and_select.sh        training, then the variant choice on validation seeds
   thresholds/                tuning of the GLiNER2 type thresholds
-corpus_loaders/              S-CECILIA, CECILIA-10C-900 and CyNER loaders; the splits
+corpora/                     the three corpora and their splits
+  corpus.py                  which corpus a script works on (EVAL_DATASET) and where
+                             its predictions go
+  s_cecilia.py, cecilia.py,  one loader per corpus: S-CECILIA-Gold, CECILIA-10C-900,
+  cyner.py                   CyNER
+  splits.py                  the train/test splits, fixed in split_s_cecilia.json
+                             and split_cecilia.json
 scoring/                     metrics of Table 1 (P/R/F1, exact, leak)
 experiments/
   tables_2_3_detection/      RubiNER against the D17 models (Tables 2 and 3)
@@ -54,7 +60,7 @@ service whose anonymiser RubiNER is built on. In particular:
 | RubiNER (Section 2) | `rubiner/run_rubiner.py`, `rubiner/run_siesta.py`, `rubiner/anonymiser/` |
 | Fine-tuning of the general NER, label mapping (Appendix 1) | `rubiner/train_general_ner/`, `rubiner/train_and_select.sh`; mapping in `experiments/tables_2_3_detection/export_ft_kit.py` (`SCEC_TO_SIESTA`) |
 | GLiNER2 thresholds | `rubiner/thresholds/gliner_cache.py`, `gliner_exp.py deployed` (reproduces `results_gliner_base_tuned.json`) |
-| Splits | `corpus_loaders/split.py` (`split.json`, S-CECILIA, seed-grouped); `corpus_loaders/corpora.py` (`split_cecilia.json`, D17's own split) |
+| Splits | `corpora/splits.py`: `split_s_cecilia.json` (S-CECILIA, seed-grouped), `split_cecilia.json` (D17's own split) |
 | Metrics (Table 1) | `scoring/score.py`, `scoring/score_variants.py` |
 | Table 2: D17 configuration, D17 models as published | `run_wp17_zeroshot.py`, `finetune.py`, `predict_ft_cecilia.py` |
 | Table 3: D17 models fine-tuned on S-CECILIA | `export_ft_kit.py`, `d17_on_scecilia_kit/`, `import_ft_kit.py` |
@@ -87,9 +93,9 @@ No data is included. Place it as follows:
 | `third_party/CyNER/` | `git clone https://github.com/aiforsec/CyNER` (commit 37aff53) |
 | `third_party/spy_src/repo/` | `git clone https://github.com/LogicZMaksimka/SPY_Dataset` (commit 5baabd6) |
 
-`corpus_loaders/split.json` and `split_cecilia.json` hold document
-identifiers only, so the exact test sets are fixed without re-running the
-splits.
+`corpora/split_s_cecilia.json` and `corpora/split_cecilia.json` hold
+document identifiers only, so the exact test sets are fixed without
+re-running the splits.
 
 ## Reproducing
 

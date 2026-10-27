@@ -57,8 +57,8 @@ def _wp17_spans(H):
     (spans shifted by one); 3 rows hold an annotation export, not an
     incident, and get no spans (they are such rows in every version)."""
     os.environ["EVAL_DATASET"] = "cecilia"
-    import corpora, score
-    cec = {d["text"]: d["id"] for d in corpora.load()}
+    import corpus, score
+    cec = {d["text"]: d["id"] for d in corpus.load()}
     out, notes = {}, {}
     for name, f in WP17.items():
         _, P = score.load_preds(ROOT / "preds_cecilia" / f"{f}.jsonl")

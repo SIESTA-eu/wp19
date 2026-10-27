@@ -22,7 +22,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT)); import paths  # noqa: E402,F401  (puts every code folder on sys.path)
-import gold, score  # noqa: E402
+import s_cecilia, score, splits  # noqa: E402
 import run_siesta  # noqa: E402
 from base_anonymizer import BaseAnonymizer  # noqa: E402  (SIESTA repo, via run_siesta)
 
@@ -44,8 +44,8 @@ class Merger(BaseAnonymizer):
 
 
 M = Merger()
-docs = {d["id"]: d for d in gold.load()}
-split = json.load(open(ROOT / "corpus_loaders" / "split.json"))
+docs = {d["id"]: d for d in s_cecilia.load()}
+split = splits.s_cecilia_split()
 raw = pickle.load(open(ROOT / "cache" / "siesta_raw_scec.pkl", "rb"))
 
 

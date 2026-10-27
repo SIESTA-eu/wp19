@@ -18,7 +18,7 @@ import torch
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT)); import paths  # noqa: E402,F401  (puts every code folder on sys.path)
-import gold  # noqa: E402
+import s_cecilia  # noqa: E402
 import run_siesta  # noqa: E402  (chdirs into the SIESTA repo, puts it on sys.path)
 
 CACHE = ROOT / "cache"; CACHE.mkdir(exist_ok=True)
@@ -73,7 +73,7 @@ def gliner(docs, model_name, mode):
 
 
 if __name__ == "__main__":
-    docs = gold.load()
+    docs = s_cecilia.load()
     what = sys.argv[1] if len(sys.argv) > 1 else "all"
     if what in ("all", "siesta"): siesta_raw(docs)
     if what in ("all", "gliner"):

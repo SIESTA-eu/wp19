@@ -1,11 +1,12 @@
-"""Load S-CECILIA gold: align CoNLL tokens to the raw text for char spans."""
-import json, re, pandas as pd
-from pathlib import Path
+"""S-CECILIA-Gold: 974 synthetic incident reports with 31 entity types.
 
-import sys
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT)); import paths  # noqa: E402,F401  (puts every code folder on sys.path)
-DATA = ROOT / "data"
+The CoNLL tokens are aligned to the raw text for character spans; one
+duplicate annotation is dropped.
+"""
+from pathlib import Path
+import pandas as pd
+
+DATA = Path(__file__).resolve().parents[1] / "data"
 
 
 def read_conll(path):

@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-CODE = ["rubiner", "rubiner/thresholds", "corpus_loaders", "scoring",
+CODE = ["rubiner", "rubiner/thresholds", "corpora", "scoring",
         "experiments/tables_2_3_detection", "experiments/table_4_classification",
         "experiments/table_5_spy"]
 for d in reversed(CODE):

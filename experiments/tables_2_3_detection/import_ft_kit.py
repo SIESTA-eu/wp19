@@ -17,7 +17,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT)); import paths  # noqa: E402,F401  (puts every code folder on sys.path)
-EXPECTED = {"scec": 247, "cecilia": 879, "tab": 127, "cyner": 94, "casie": 1000, "cyberpii": 78}
+EXPECTED = {"scec": 247, "cecilia": 879, "cyner": 94}
 
 
 def main(src):
@@ -36,19 +36,19 @@ def main(src):
         log = json.load(open(mdir / "train_log.json"))
         env = json.load(open(mdir / "env.json")) if (mdir / "env.json").exists() else {}
         model, labels = log["model"], log["labels"]
-        for corpus, n in EXPECTED.items():
-            f = mdir / f"{corpus}.jsonl"
+        for cname, n in EXPECTED.items():
+            f = mdir / f"{cname}.jsonl"
             if not f.exists():
                 continue
             rows = {}
             for line in open(f, encoding="utf-8"):
                 r = json.loads(line); rows[r["id"]] = r
             if len(rows) < n:
-                print(f"skip {model} {labels} {corpus}: {len(rows)} of {n} documents"); continue
-            os.environ["EVAL_DATASET"] = corpus
-            import importlib, corpora
-            importlib.reload(corpora)
-            out = corpora.preds_dir() / f"ft_scec__{model.replace('/', '__')}__{labels}.jsonl"
+                print(f"skip {model} {labels} {cname}: {len(rows)} of {n} documents"); continue
+            os.environ["EVAL_DATASET"] = cname
+            import importlib, corpus
+            importlib.reload(corpus)
+            out = corpus.preds_dir() / f"ft_scec__{model.replace('/', '__')}__{labels}.jsonl"
             meta = {"_meta": {"name": f"{model} fine-tuned on S-CECILIA ({labels})",
                               "taxonomy": "scec" if labels == "native" else "native",
                               "family": "WP17 fine-tuned on S-CECILIA", "device": env.get("device"),

@@ -2,8 +2,8 @@
 SIESTA's automatic detection against perfect detection (the gold spans), each
 replaced by SIESTA's own replacement code, so the two differ in detection only.
 
-Data: S-CECILIA gold (gold.load(), 974 reports, 10 classes in "cls"; each
-report derives from one seed incident, split.json "gold_seed"; every seed has
+Data: S-CECILIA gold (s_cecilia.load(), 974 reports, 10 classes in "cls"; each
+report derives from one seed incident, corpora/split_s_cecilia.json "gold_seed"; every seed has
 one class and every class has at least two seeds).
 
 Text versions:
@@ -60,10 +60,10 @@ def siesta_type(gold_type, value):
 
 
 def reports():
-    import ast, gold
-    seed = json.load(open(ROOT / "corpus_loaders" / "split.json"))["gold_seed"]
+    import ast, s_cecilia, splits
+    seed = splits.s_cecilia_split()["gold_seed"]
     out = []
-    for d in gold.load():
+    for d in s_cecilia.load():
         spans = d["spans"] if isinstance(d["spans"], list) else ast.literal_eval(d["spans"])
         out.append({"id": d["id"], "text": d["text"], "label": d["cls"], "seed": seed[d["id"]], "spans": spans})
     return out

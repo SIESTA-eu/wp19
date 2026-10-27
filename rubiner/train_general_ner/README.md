@@ -1,6 +1,6 @@
 # WP17 models fine-tuned on S-CECILIA (server kit)
 
-This kit answers the question: what if the WP17 models were fine-tuned on the same incident reports that SIESTA was tuned on? It trains the three WP17 models from D17.1's fine-tuning experiment on the S-CECILIA **training seeds** with WP17's own recipe, then predicts on the held-out seeds and five other corpora. When it finishes, send back `results/` and `logs/`. Scoring happens on the project machine, so the held-out annotations never leave it.
+This kit answers the question: what if the WP17 models were fine-tuned on the same incident reports that SIESTA was tuned on? It trains the three WP17 models from D17.1's fine-tuning experiment on the S-CECILIA **training seeds** with WP17's own recipe, then predicts on the held-out seeds, CECILIA and CyNER. When it finishes, send back `results/` and `logs/`. Scoring happens on the project machine, so the held-out annotations never leave it.
 
 ## What it does
 
@@ -17,10 +17,7 @@ This kit answers the question: what if the WP17 models were fine-tuned on the sa
   | `val.jsonl` | 4 further training seeds, with annotations, for choosing the epoch | 64 |
   | `predict_scec.jsonl` | S-CECILIA held-out seeds, text only | 247 |
   | `predict_cecilia.jsonl` | CECILIA, text only | 879 |
-  | `predict_tab.jsonl` | TAB test judgments, text only | 127 |
   | `predict_cyner.jsonl` | CyNER, text only | 94 |
-  | `predict_casie.jsonl` | CASIE news articles on cyber incidents, text only | 1,000 |
-  | `predict_cyberpii.jsonl` | CyberPII-Bench pentest sessions, text only | 78 |
 
 ## Steps
 

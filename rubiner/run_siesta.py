@@ -67,7 +67,7 @@ if os.environ.get("SIESTA_REPO"):
     REPO = Path(os.environ["SIESTA_REPO"])
 sys.path.insert(0, str(ROOT)); sys.path.insert(0, str(REPO))
 os.chdir(REPO)
-import corpora  # noqa: E402
+import corpus  # noqa: E402
 
 CUSTOM_TYPES = [
     {"name": "job title", "description": "a person's job title or role, e.g. system administrator"},
@@ -204,8 +204,8 @@ def main(variant):
         custom_entities._model = custom_entities._model.to("cuda")
     a = build(variant)
     identity = lambda text: text
-    docs = corpora.load()
-    out = corpora.preds_dir() / f"{variant}.jsonl"
+    docs = corpus.load()
+    out = corpus.preds_dir() / f"{variant}.jsonl"
     part = out.with_suffix(".part")
     rerun = 0; t0 = time.time()
     with open(part, "w", encoding="utf-8") as f:

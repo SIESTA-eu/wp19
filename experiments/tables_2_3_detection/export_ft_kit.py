@@ -8,7 +8,7 @@ the held-out ones).
                                 (seed 42), so validation is seed-grouped too
   data/predict_<corpus>.jsonl   texts only, no gold: scec (247 held-out),
                                 cecilia (all 879; score its test split here),
-                                tab (127), cyner (94)
+                                cyner (94)
   data/labels.json              siesta: SCEC_TO_SIESTA, for RubiNER's general NER;
                                 conll4: WP17's collapse (score.SCEC_TO_CONLL,
                                 anything else MISC); native: the 31 S-CECILIA types
@@ -40,11 +40,11 @@ SCEC_TO_SIESTA = {
 
 
 def main():
-    import corpora, score
+    import importlib, corpus, score, splits
     KIT.mkdir(parents=True, exist_ok=True)
-    sp = json.load(open(ROOT / "corpus_loaders" / "split.json"))
+    sp = splits.s_cecilia_split()
     os.environ["EVAL_DATASET"] = "scec"
-    docs = {d["id"]: d for d in corpora.load()}
+    docs = {d["id"]: d for d in corpus.load()}
     train_ids = sorted(sp["train"])
     seeds = sorted({sp["gold_seed"][i] for i in train_ids})
     assert not set(seeds) & set(sp["test_seeds"])
@@ -61,15 +61,16 @@ def main():
     json.dump({"conll4": {l: score.SCEC_TO_CONLL.get(l, "MISC") for l in native},
                "native": {l: l for l in native},
                "siesta": {l: SCEC_TO_SIESTA[l] for l in native}}, open(KIT / "labels.json", "w"), indent=1)
-    for corpus in ("scec", "cecilia", "tab", "cyner", "casie", "cyberpii"):
-        os.environ["EVAL_DATASET"] = corpus
-        cd = corpora.load()
-        if corpus == "scec":
+    for cname in ("scec", "cecilia", "cyner"):
+        os.environ["EVAL_DATASET"] = cname
+        importlib.reload(corpus)
+        cd = corpus.load()
+        if cname == "scec":
             test = set(sp["test"]); cd = [d for d in cd if d["id"] in test]
-        with open(KIT / f"predict_{corpus}.jsonl", "w", encoding="utf-8") as f:
+        with open(KIT / f"predict_{cname}.jsonl", "w", encoding="utf-8") as f:
             for d in cd:
                 f.write(json.dumps({"id": d["id"], "text": d["text"]}, ensure_ascii=False) + "\n")
-        manifest[f"predict_{corpus}"] = len(cd)
+        manifest[f"predict_{cname}"] = len(cd)
     for p in sorted(KIT.iterdir()):
         if p.name != "MANIFEST.json":
             manifest[f"sha256:{p.name}"] = hashlib.sha256(p.read_bytes()).hexdigest()
