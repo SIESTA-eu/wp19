@@ -7,31 +7,65 @@ the Deliverable 17 (D17) models.
 
 The fine-tuned weights of RubiNER's general NER component are published at
 [GVIS-ULE/rubiner](https://huggingface.co/GVIS-ULE/rubiner) and downloaded
-automatically (pinned to the evaluated revision).
+automatically, pinned to the evaluated revision.
+
+## Layout
+
+```
+rubiner/                     RubiNER itself
+  anonymiser/                the SIESTA anonymiser as evaluated (cyber NER, GLiNER2 types,
+                             patterns, dates, merging)
+  run_rubiner.py             RubiNER = the anonymiser with the fine-tuned general NER
+  run_siesta.py              builds the anonymiser and runs it over a corpus
+  train_general_ner/         fine-tuning of dslim/bert-base-NER on S-CECILIA (Appendix 1)
+  train_and_select.sh        training, then the variant choice on validation seeds
+  thresholds/                tuning of the GLiNER2 type thresholds
+corpus_loaders/              S-CECILIA, CECILIA-10C-900 and CyNER loaders; the splits
+scoring/                     metrics of Table 1 (P/R/F1, exact, leak)
+experiments/
+  tables_2_3_detection/      RubiNER against the D17 models (Tables 2 and 3)
+  table_4_classification/    incident classification after redaction (Table 4)
+  table_5_spy/               medical and legal text (Table 5)
+paths.py                     imported first by every script; puts these folders on sys.path
+```
+
+## Names in the code
+
+"SIESTA" is the project, and in the code it means the SIESTA anonymisation
+service whose anonymiser RubiNER is built on. In particular:
+
+- `rubiner/run_siesta.py` builds that anonymiser and runs it over a corpus.
+  Its variant `aad-fixC` is the pipeline **without** the fine-tuned general
+  NER ("RubiNER without S-CECILIA fine-tuning" in Table 2); `run_rubiner.py`
+  builds RubiNER on top of it. Its other variants are earlier experiments,
+  not reported in D19.4.
+- `aad-fixC` names that version of the anonymiser; `aad-fixC-ft-siesta-rep`
+  is RubiNER: the general NER fine-tuned (`ft`) with SIESTA's entity types as
+  labels (`siesta`), replacing (`rep`) the original one.
+- The label set `siesta` (`--labels siesta`, `SCEC_TO_SIESTA`) is SIESTA's
+  entity types; `conll4` and `native` are D17's four types and S-CECILIA's own.
+- `SIESTA_DEVICE` (GPU index, -1 for CPU) and `SIESTA_REPO` (another copy of
+  the anonymiser) are environment variables read by `run_siesta.py`.
 
 ## What produced which result
 
 | D19.4 | Scripts |
 |---|---|
-| RubiNER (Section 2) | `siesta_aad6c5b_fixC/Anonimizacion/` (the anonymiser evaluated), `run_siesta.py`, `analysis_siesta_fixes/run_siesta_ft.py` (adds the fine-tuned general NER) |
-| Fine-tuning of the general NER (Appendix 1) | `kits/ft_scec_local/run.py --labels siesta`, `analysis_siesta_fixes/run_queue_2.sh` |
-| GLiNER2 thresholds | `gliner_cache.py`, `gliner_exp.py deployed` (reproduces `results_gliner_base_tuned.json`) |
-| Cyber-model threshold (0.7) | `choose_threshold.py` |
-| Splits | `split.py` (`split.json`, S-CECILIA seed-grouped), `corpora.py` (`split_cecilia.json`, D17's own split) |
-| Metrics (Table 1) | `score.py`, `analysis_siesta_fixes/score_variants.py` |
-| Table 2: D17 configuration and D17 models as published | `run_wp17_zeroshot.py`, `finetune.py`, `analysis_siesta_fixes/predict_ft_cecilia.py` |
-| Table 3: D17 models fine-tuned on S-CECILIA | `export_ft_kit.py`, `kits/ft_scec/`, `import_ft_kit.py` |
-| Tables 2 and 3 (spreadsheet) | `analysis_siesta_fixes/build_rubiner_tables.py` |
-| Table 4: incident classification | `analysis_siesta_fixes/refinement_stage3.py`, `kits/haughton_cls_refine_server/` (RoBERTa-base, 5 seeds), with `haughton_compare.py`, `scec_utility.py`, `cecilia_utility.py`, `analysis_siesta_fixes/utility_rubiner.py` |
-| Table 5: SPY | `spy_benchmark.py`, `analysis_siesta_fixes/run_spy_variants.py` |
-| Limitations: name bias | `name_confidence.py`, `template_name_bias.py`, `mehrabi_bias.py` |
-
-Loaders: `gold.py` (S-CECILIA), `cecilia.py` (CECILIA-10C-900), `benchmarks.py` (CyNER).
+| RubiNER (Section 2) | `rubiner/run_rubiner.py`, `rubiner/run_siesta.py`, `rubiner/anonymiser/` |
+| Fine-tuning of the general NER, label mapping (Appendix 1) | `rubiner/train_general_ner/`, `rubiner/train_and_select.sh`; mapping in `experiments/tables_2_3_detection/export_ft_kit.py` (`SCEC_TO_SIESTA`) |
+| GLiNER2 thresholds | `rubiner/thresholds/gliner_cache.py`, `gliner_exp.py deployed` (reproduces `results_gliner_base_tuned.json`) |
+| Splits | `corpus_loaders/split.py` (`split.json`, S-CECILIA, seed-grouped); `corpus_loaders/corpora.py` (`split_cecilia.json`, D17's own split) |
+| Metrics (Table 1) | `scoring/score.py`, `scoring/score_variants.py` |
+| Table 2: D17 configuration, D17 models as published | `run_wp17_zeroshot.py`, `finetune.py`, `predict_ft_cecilia.py` |
+| Table 3: D17 models fine-tuned on S-CECILIA | `export_ft_kit.py`, `d17_on_scecilia_kit/`, `import_ft_kit.py` |
+| Tables 2 and 3 (spreadsheet) | `build_rubiner_tables.py` |
+| Table 4 | `refinement_stage3.py` (anonymisation, XGBoost, intervals), `roberta_kit/` (RoBERTa-base, 5 seeds) |
+| Table 5 | `run_spy_variants.py`, `spy_corpus.py` |
 
 ## Setup
 
-Python 3.10, one CUDA GPU for training (an 8 GB GPU is enough except for the
-large models in Tables 3 and 4, which were run on a server GPU).
+Python 3.10. A CUDA GPU is needed for training; an 8 GB GPU is enough except
+for the large models in Tables 3 and 4, which were run on a server GPU.
 
 ```bash
 python3.10 -m venv .venv
@@ -39,8 +73,7 @@ python3.10 -m venv .venv
 .venv/bin/python -m spacy download en_core_web_md   # and _lg, _trf for Table 2
 ```
 
-Scripts are run from the repository root. Docstrings that say "run from
-WP17/eval" mean this directory.
+Run every script from the repository root.
 
 ## Data
 
@@ -54,62 +87,65 @@ No data is included. Place it as follows:
 | `third_party/CyNER/` | `git clone https://github.com/aiforsec/CyNER` (commit 37aff53) |
 | `third_party/spy_src/repo/` | `git clone https://github.com/LogicZMaksimka/SPY_Dataset` (commit 5baabd6) |
 
-`split.json` and `split_cecilia.json` hold document identifiers only and are
-included, so the exact test sets can be used without re-running the splits.
+`corpus_loaders/split.json` and `split_cecilia.json` hold document
+identifiers only, so the exact test sets are fixed without re-running the
+splits.
 
 ## Reproducing
 
-Prediction files go to `preds/` (S-CECILIA) or `preds_<corpus>/`; the corpus
-is chosen with `EVAL_DATASET` (`scec`, `cecilia`, `cyner`).
+Predictions go to `preds/` (S-CECILIA) or `preds_<corpus>/`; the corpus is
+chosen with `EVAL_DATASET` (`scec`, `cecilia`, `cyner`). `SIESTA_DEVICE` is a
+GPU index, or -1 for CPU.
 
 ```bash
-export SIESTA_DEVICE=0        # GPU index; -1 for CPU
+export SIESTA_DEVICE=0
+X=experiments/tables_2_3_detection
 
-# RubiNER and the anonymiser without fine-tuning, on each corpus
+# RubiNER, and the same pipeline without fine-tuning
 for c in scec cecilia cyner; do
-  EVAL_DATASET=$c .venv/bin/python run_siesta.py aad-fixC
-  EVAL_DATASET=$c .venv/bin/python analysis_siesta_fixes/run_siesta_ft.py aad-fixC-ft-siesta-rep
+  EVAL_DATASET=$c .venv/bin/python rubiner/run_siesta.py aad-fixC
+  EVAL_DATASET=$c .venv/bin/python rubiner/run_rubiner.py aad-fixC-ft-siesta-rep
 done
 
 # D17 models: as published (and spaCy), fine-tuned on CECILIA, fine-tuned on S-CECILIA
-for c in scec cecilia cyner; do EVAL_DATASET=$c .venv/bin/python run_wp17_zeroshot.py; done
-.venv/bin/python finetune.py
-.venv/bin/python analysis_siesta_fixes/predict_ft_cecilia.py cyner
-.venv/bin/python export_ft_kit.py      # then run kits/ft_scec (see its README)
-.venv/bin/python import_ft_kit.py <results dir or .tar.gz>
+for c in scec cecilia cyner; do EVAL_DATASET=$c .venv/bin/python $X/run_wp17_zeroshot.py; done
+.venv/bin/python $X/finetune.py
+.venv/bin/python $X/predict_ft_cecilia.py cyner
+.venv/bin/python $X/export_ft_kit.py       # then run $X/d17_on_scecilia_kit (see its README)
+.venv/bin/python $X/import_ft_kit.py <results dir or .tar.gz>
 
-# Tables 2 and 3
-.venv/bin/python score.py scec test; .venv/bin/python score.py cecilia test; .venv/bin/python score.py cyner all
-.venv/bin/python analysis_siesta_fixes/score_variants.py aad-fixC aad-fixC-ft-siesta-rep \
+# Tables 2 and 3 -> RubiNER_comparison.xlsx
+for c in "scec test" "cecilia test" "cyner all"; do .venv/bin/python scoring/score.py $c; done
+.venv/bin/python scoring/score_variants.py aad-fixC aad-fixC-ft-siesta-rep \
   ft-cecilia__dslim__bert-base-NER ft-cecilia__dbmdz__bert-large-cased-finetuned-conll03-english \
   ft-cecilia__Jean-Baptiste__roberta-large-ner-english
-.venv/bin/python analysis_siesta_fixes/build_rubiner_tables.py     # RubiNER_comparison.xlsx
+.venv/bin/python $X/build_rubiner_tables.py
 
 # Table 4
-.venv/bin/python analysis_siesta_fixes/refinement_stage3.py anonymise
-.venv/bin/python analysis_siesta_fixes/refinement_stage3.py classical
-.venv/bin/python analysis_siesta_fixes/refinement_stage3.py kit    # then run kits/haughton_cls_refine_server
-.venv/bin/python analysis_siesta_fixes/refinement_stage3.py report
+T=experiments/table_4_classification
+.venv/bin/python $T/refinement_stage3.py anonymise
+.venv/bin/python $T/refinement_stage3.py classical
+.venv/bin/python $T/refinement_stage3.py kit      # then run $T/roberta_kit (see its README)
+.venv/bin/python $T/refinement_stage3.py report
 
 # Table 5
-.venv/bin/python spy_benchmark.py
-.venv/bin/python analysis_siesta_fixes/run_spy_variants.py
-.venv/bin/python analysis_siesta_fixes/run_spy_variants.py --report
+.venv/bin/python experiments/table_5_spy/run_spy_variants.py
+.venv/bin/python experiments/table_5_spy/run_spy_variants.py --report
 
 # GLiNER2 thresholds
-.venv/bin/python gliner_cache.py
-.venv/bin/python gliner_exp.py deployed
+.venv/bin/python rubiner/thresholds/gliner_cache.py
+.venv/bin/python rubiner/thresholds/gliner_exp.py deployed
 ```
 
 To retrain the general NER instead of downloading it, run
-`kits/ft_scec_local/run.py --model dslim/bert-base-NER --labels siesta --gpu 0`;
-`run_siesta_ft.py` uses a local checkpoint when one exists.
+`rubiner/train_and_select.sh`; `run_rubiner.py` uses a local checkpoint when
+one exists.
 
 ## Notes
 
-- RubiNER as evaluated is the anonymiser in `siesta_aad6c5b_fixC/` with its
-  general NER replaced at run time by the fine-tuned model
-  (`run_siesta_ft.py`); the anonymiser's own files are not edited.
+- RubiNER as evaluated is the anonymiser in `rubiner/anonymiser/` with its
+  general NER replaced at run time by the fine-tuned model (`run_rubiner.py`);
+  the anonymiser's own files are not edited.
 - Deviations from D17's fine-tuning recipe (warm-up, learning rate and batch
   size for large models, windowing instead of truncation) are listed in
   `finetune.py`.

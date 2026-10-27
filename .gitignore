@@ -1,19 +1,23 @@
 .venv/
 __pycache__/
 *.pyc
+# data and third-party corpora (see README)
 data/
 data_*/
 third_party/
+# generated
 cache/
 preds/
 preds_*/
 logs/
+scores/
 results_*.json
-!results_gliner_base_tuned.json
-scores_*.json
+!rubiner/thresholds/results_gliner_base_tuned.json
 *.xlsx
-kits/*/data/
-kits/*/results/
-kits/*/work/
-kits/*/server/
 *.tar.gz
+# kit data and outputs
+rubiner/train_general_ner/data/
+rubiner/train_general_ner/results/
+experiments/*/*_kit/data/
+experiments/*/*_kit/results/
+experiments/*/*_kit/logs/
