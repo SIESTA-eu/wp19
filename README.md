@@ -83,7 +83,7 @@ No data is included. Place it as follows:
 |---|---|
 | `data/S-CECILIA.csv`, `data/S-CECILIA-NER-GOLD.csv`, `data/S-CECILIA-NER-GOLD.conll` | S-CECILIA and S-CECILIA-Gold (under review; to be released on acceptance) |
 | `data_cecilia/cecilia100_fixed_final.csv` | CECILIA-10C-900, as used by D17 |
-| `data_haughton/source/Loya_NER_Cib.xlsx` | CECILIA-10C-900 with manual de-identification (Haughton et al., 2026) |
+| `data_haughton/source/Loya_NER_Cib.xlsx` | CECILIA-10C-900 with manual de-identification (Haughton et al., 2026) Request here - **https://gvis.unileon.es/datasets-cecilia-10c-900-ner/** |
 | `third_party/CyNER/` | `git clone https://github.com/aiforsec/CyNER` (commit 37aff53) |
 | `third_party/spy_src/repo/` | `git clone https://github.com/LogicZMaksimka/SPY_Dataset` (commit 5baabd6) |
 
