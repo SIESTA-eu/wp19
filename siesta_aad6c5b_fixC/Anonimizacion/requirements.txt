@@ -1,0 +1,81 @@
+boto3
+hvac
+# auth.py verifies RS256-signed Keycloak/RCIAM tokens: the [crypto] extra
+# pulls in `cryptography`, without which jwt.decode(algorithms=["RS256"])
+# fails at verification time rather than at import.
+PyJWT[crypto]
+# Resolves user-defined entity types (custom_entities.py). Only imported when
+# GLINER_ENABLED=true, so the package is idle unless that is switched on; the
+# model itself is fetched at first use, not at install.
+gliner2==1.3.2
+# Dates and times beyond the fixed patterns (en_anonymizer.DATE_MODEL_ID).
+spacy>=3.7,<3.9
+en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
+python-dotenv
+pytest
+fastapi==0.116.1
+transformers==4.53.3
+tokenizers==0.21.2
+Faker==37.4.2
+torch==2.7.1
+langdetect
+uvicorn==0.35.0
+gunicorn
+fpdf2
+
+pandas
+python-multipart
+openpyxl
+xlsxwriter
+altair==6.0.0
+anyio==4.12.1
+attrs==25.4.0
+blinker==1.9.0
+cachetools==6.2.6
+certifi==2026.1.4
+chardet==3.0.4
+charset-normalizer==3.4.4
+click==8.3.1
+colorama==0.4.6
+gitdb==4.0.12
+GitPython==3.1.46
+
+h11==0.16.0
+h2==3.2.0
+hpack==3.0.0
+hstspreload==2025.1.1
+httpcore==1.0.9
+httpx==0.28.1
+hyperframe==5.2.0
+idna==2.10
+Jinja2==3.1.6
+jsonschema==4.26.0
+jsonschema-specifications==2025.9.1
+MarkupSafe==3.0.3
+narwhals==2.16.0
+numpy==2.4.2
+pandas==2.3.3
+pillow==12.1.1
+protobuf==6.33.5
+pyarrow==23.0.0
+pydeck==0.9.1
+python-dateutil==2.9.0.post0
+pytz==2025.2
+referencing==0.37.0
+requests==2.32.5
+rfc3986==1.5.0
+rpds-py==0.30.0
+setuptools==80.10.2
+six==1.17.0
+smmap==5.0.2
+sniffio==1.3.1
+streamlit==1.54.0
+tenacity==9.1.4
+toml==0.10.2
+tornado==6.5.4
+typing_extensions==4.15.0
+tzdata==2025.3
+urllib3==2.6.3
+watchdog==6.0.0
+wheel==0.46.3
+

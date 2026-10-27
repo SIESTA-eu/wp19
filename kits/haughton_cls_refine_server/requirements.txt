@@ -1,0 +1,8 @@
+# Install PyTorch for your CUDA version first (setup.sh does), then these.
+transformers==4.53.2
+tokenizers==0.21.4
+accelerate>=1.0
+sentencepiece==0.2.0
+protobuf>=5,<7
+scikit-learn>=1.5
+numpy
